@@ -127,6 +127,7 @@ struct sunshine_t {
   } cmd;
 
   std::uint16_t port;
+  std::string address_family;
   std::string log_file;
 };
 

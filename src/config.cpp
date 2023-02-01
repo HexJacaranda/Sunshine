@@ -383,6 +383,7 @@ sunshine_t sunshine {
   platf::appdata().string() + "/sunshine.conf", // config file
   {},                                           // cmd args
   47989,
+  "ipv4",
   platf::appdata().string() + "/sunshine.log", // log file
 };
 
@@ -900,9 +901,11 @@ void apply_config(std::unordered_map<std::string, std::string> &&vars) {
 
   string_restricted_f(vars, "gamepad"s, input.gamepad, platf::supported_gamepads());
 
-  int port = sunshine.port;
+  int port = config::sunshine.port;
   int_f(vars, "port"s, port);
-  sunshine.port = (std::uint16_t)port;
+  config::sunshine.port = (std::uint16_t)port;
+
+  string_restricted_f(vars, "address_family", config::sunshine.address_family, { "ipv4"sv, "both"sv });
 
   bool upnp = false;
   bool_f(vars, "upnp"s, upnp);
@@ -916,31 +919,31 @@ void apply_config(std::unordered_map<std::string, std::string> &&vars) {
 
   if(!log_level_string.empty()) {
     if(log_level_string == "verbose"sv) {
-      sunshine.min_log_level = 0;
+      config::sunshine.min_log_level = 0;
     }
     else if(log_level_string == "debug"sv) {
-      sunshine.min_log_level = 1;
+      config::sunshine.min_log_level = 1;
     }
     else if(log_level_string == "info"sv) {
-      sunshine.min_log_level = 2;
+      config::sunshine.min_log_level = 2;
     }
     else if(log_level_string == "warning"sv) {
-      sunshine.min_log_level = 3;
+      config::sunshine.min_log_level = 3;
     }
     else if(log_level_string == "error"sv) {
-      sunshine.min_log_level = 4;
+      config::sunshine.min_log_level = 4;
     }
     else if(log_level_string == "fatal"sv) {
-      sunshine.min_log_level = 5;
+      config::sunshine.min_log_level = 5;
     }
     else if(log_level_string == "none"sv) {
-      sunshine.min_log_level = 6;
+      config::sunshine.min_log_level = 6;
     }
     else {
       // accept digit directly
       auto val = log_level_string[0];
       if(val >= '0' && val < '7') {
-        sunshine.min_log_level = val - '0';
+        config::sunshine.min_log_level = val - '0';
       }
     }
   }
@@ -952,7 +955,7 @@ void apply_config(std::unordered_map<std::string, std::string> &&vars) {
     vars.erase(it);
   }
 
-  if(sunshine.min_log_level <= 3) {
+  if(config::sunshine.min_log_level <= 3) {
     for(auto &[var, _] : vars) {
       std::cout << "Warning: Unrecognized configurable option ["sv << var << ']' << std::endl;
     }
@@ -971,9 +974,9 @@ int parse(int argc, char *argv[]) {
     }
     else if(*line == '-') {
       if(*(line + 1) == '-') {
-        sunshine.cmd.name = line + 2;
-        sunshine.cmd.argc = argc - x - 1;
-        sunshine.cmd.argv = argv + x + 1;
+        config::sunshine.cmd.name = line + 2;
+        config::sunshine.cmd.argc = argc - x - 1;
+        config::sunshine.cmd.argv = argv + x + 1;
 
         break;
       }
@@ -987,7 +990,7 @@ int parse(int argc, char *argv[]) {
 
       auto pos = std::find(line, line_end, '=');
       if(pos == line_end) {
-        sunshine.config_file = line;
+        config::sunshine.config_file = line;
       }
       else {
         TUPLE_EL(var, 1, parse_option(line, line_end));
@@ -1014,11 +1017,11 @@ int parse(int argc, char *argv[]) {
   }
 
   // create config file if it does not exist
-  if(!fs::exists(sunshine.config_file)) {
-    std::ofstream { sunshine.config_file }; // create empty config file
+  if(!fs::exists(config::sunshine.config_file)) {
+    std::ofstream { config::sunshine.config_file }; // create empty config file
   }
 
-  auto vars = parse_config(read_file(sunshine.config_file.c_str()));
+  auto vars = parse_config(read_file(config::sunshine.config_file.c_str()));
 
   for(auto &[name, value] : cmd_vars) {
     vars.insert_or_assign(std::move(name), std::move(value));

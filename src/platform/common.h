@@ -324,6 +324,8 @@ std::string get_mac_address(const std::string_view &address);
 std::string from_sockaddr(const sockaddr *const);
 std::pair<std::uint16_t, std::string> from_sockaddr_ex(const sockaddr *const);
 
+bool match_ipv6_prefix64(const std::string & address_one, const std::string & address_two);
+
 std::unique_ptr<audio_control_t> audio_control();
 
 /**

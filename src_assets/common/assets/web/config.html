@@ -445,182 +445,171 @@
       </div>
     </div>
     <div v-if="currentTab === 'advanced'" class="config-page">
-      <!--Port family-->
-      <div class="mb-3">
-        <label for="port" class="form-label">Port</label>
-        <input
-          type="number"
-          min="0"
-          max="65529"
-          class="form-control"
-          id="port"
-          placeholder="47989"
-          v-model="config.port"
-        />
-        <div class="form-text">Set the family of ports used by Sunshine</div>
-      </div>
-      <!-- Quantization Parameter -->
-      <div class="mb-3">
-        <label for="qp" class="form-label">Quantization Parameter</label>
-        <input
-          type="number"
-          class="form-control"
-          id="qp"
-          placeholder="28"
-          v-model="config.qp"
-        />
-        <div class="form-text">
-          Quantization Parameter<br />
-          Some devices may not support Constant Bit Rate.<br />
-          For those devices, QP is used instead.<br />
-          Higher value means more compression, but less quality<br />
+        <!--Address family-->
+        <div class="mb-3">
+            <label for="address_family" class="form-label">Address Family</label>
+            <select id="address_family"
+                    class="form-select"
+                    v-model="config.address_family">
+                <option value="ipv4">IPv4 only</option>
+                <option value="both">IPv4+IPv6</option>
+            </select>
+            <div class="form-text">Set the address family used by Sunshine</div>
         </div>
-      </div>
-      <!-- Min Threads -->
-      <div class="mb-3">
-        <label for="min_threads" class="form-label"
-          >Minimum Software Encoding Thread Count</label
-        >
-        <input
-          type="number"
-          min="1"
-          class="form-control"
-          id="min_threads"
-          placeholder="1"
-          v-model="config.min_threads"
-        />
-        <div class="form-text">
-          Increasing the value slightly reduces encoding efficiency, but the tradeoff is usually<br />
-          worth it to gain the use of more CPU cores for encoding. The ideal value is the lowest<br />
-          value that can reliably encode at your desired streaming settings on your hardware.
+        <!--Port family-->
+        <div class="mb-3">
+            <label for="port" class="form-label">Port</label>
+            <input type="number"
+                   min="0"
+                   max="65529"
+                   class="form-control"
+                   id="port"
+                   placeholder="47989"
+                   v-model="config.port" />
+            <div class="form-text">Set the family of ports used by Sunshine</div>
         </div>
-      </div>
-      <!--HEVC Support -->
-      <div class="mb-3">
-        <label for="hevc_mode" class="form-label">HEVC Support</label>
-        <select id="hevc_mode" class="form-select" v-model="config.hevc_mode">
-          <option value="0">
-            Sunshine will specify support for HEVC based on encoder
-          </option>
-          <option value="1">
-            Sunshine will not advertise support for HEVC
-          </option>
-          <option value="2">
-            Sunshine will advertise support for HEVC Main profile
-          </option>
-          <option value="3">
-            Sunshine will advertise support for HEVC Main and Main10 (HDR) profiles
-          </option>
-        </select>
-        <div class="form-text">
-          Allows the client to request HEVC Main or HEVC Main10 video streams.<br />
-          HEVC is more CPU-intensive to encode, so enabling this may reduce performance when using software encoding.
+        <!-- Quantization Parameter -->
+        <div class="mb-3">
+            <label for="qp" class="form-label">Quantization Parameter</label>
+            <input type="number"
+                   class="form-control"
+                   id="qp"
+                   placeholder="28"
+                   v-model="config.qp" />
+            <div class="form-text">
+                Quantization Parameter<br />
+                Some devices may not support Constant Bit Rate.<br />
+                For those devices, QP is used instead.<br />
+                Higher value means more compression, but less quality<br />
+            </div>
         </div>
-      </div>
-      <!--Encoder -->
-      <div class="mb-3">
-        <label for="encoder" class="form-label">Force a Specific Encoder</label>
-        <select id="encoder" class="form-select" v-model="config.encoder">
-          <option value>Autodetect</option>
-          <option value="nvenc" v-if="platform === 'windows' || platform === 'linux'">NVIDIA NVENC</option>
-          <option value="quicksync" v-if="platform === 'windows'">Intel QuickSync</option>
-          <option value="amdvce" v-if="platform === 'windows'">AMD AMF/VCE</option>
-          <option value="vaapi" v-if="platform === 'linux'">VA-API</option>
-          <option value="videotoolbox" v-if="platform === 'macos'">VideoToolbox</option>
-          <option value="software">Software</option>
-        </select>
-        <div class="form-text">
-          Force a specific encoder, otherwise Sunshine will use the first encoder that is available
+        <!-- Min Threads -->
+        <div class="mb-3">
+            <label for="min_threads" class="form-label">Minimum Software Encoding Thread Count</label>
+            <input type="number"
+                   min="1"
+                   class="form-control"
+                   id="min_threads"
+                   placeholder="1"
+                   v-model="config.min_threads" />
+            <div class="form-text">
+                Increasing the value slightly reduces encoding efficiency, but the tradeoff is usually<br />
+                worth it to gain the use of more CPU cores for encoding. The ideal value is the lowest<br />
+                value that can reliably encode at your desired streaming settings on your hardware.
+            </div>
         </div>
-      </div>
-      <!--FEC Percentage-->
-      <div class="mb-3">
-        <label for="fec_percentage" class="form-label">FEC Percentage</label>
-        <input
-          type="text"
-          class="form-control"
-          id="fec_percentage"
-          placeholder="20"
-          v-model="config.fec_percentage"
-        />
-        <div class="form-text">
-          Percentage of error correcting packets per data packet in each video frame.<br />
-          Higher values can correct for more network packet loss, but at the cost of increasing bandwidth usage.<br />
-          The default value of 20 is what GeForce Experience uses.
+        <!--HEVC Support -->
+        <div class="mb-3">
+            <label for="hevc_mode" class="form-label">HEVC Support</label>
+            <select id="hevc_mode" class="form-select" v-model="config.hevc_mode">
+                <option value="0">
+                    Sunshine will specify support for HEVC based on encoder
+                </option>
+                <option value="1">
+                    Sunshine will not advertise support for HEVC
+                </option>
+                <option value="2">
+                    Sunshine will advertise support for HEVC Main profile
+                </option>
+                <option value="3">
+                    Sunshine will advertise support for HEVC Main and Main10 (HDR) profiles
+                </option>
+            </select>
+            <div class="form-text">
+                Allows the client to request HEVC Main or HEVC Main10 video streams.<br />
+                HEVC is more CPU-intensive to encode, so enabling this may reduce performance when using software encoding.
+            </div>
         </div>
-      </div>
-      <!--Channels-->
-      <div class="mb-3">
-        <label for="channels" class="form-label">Channels</label>
-        <input
-          type="text"
-          class="form-control"
-          id="channels"
-          placeholder="1"
-          v-model="config.channels"
-        />
-        <div class="form-text">
-          When multicasting, it could be useful to have different configurations for each connected Client. For example:
-          <ul>
-            <li>
-              Clients connected through WAN and LAN have different bitrate constraints.
-            </li>
-            <li>
-              Decoders may require different settings for color
-            </li>
-          </ul>
-          Unlike simply broadcasting to multiple Client, this will generate distinct video streams.<br />
-          Note, CPU usage increases for each distinct video stream generated
+        <!--Encoder -->
+        <div class="mb-3">
+            <label for="encoder" class="form-label">Force a Specific Encoder</label>
+            <select id="encoder" class="form-select" v-model="config.encoder">
+                <option value>Autodetect</option>
+                <option value="nvenc" v-if="platform === 'windows' || platform === 'linux'">NVIDIA NVENC</option>
+                <option value="quicksync" v-if="platform === 'windows'">Intel QuickSync</option>
+                <option value="amdvce" v-if="platform === 'windows'">AMD AMF/VCE</option>
+                <option value="vaapi" v-if="platform === 'linux'">VA-API</option>
+                <option value="videotoolbox" v-if="platform === 'macos'">VideoToolbox</option>
+                <option value="software">Software</option>
+            </select>
+            <div class="form-text">
+                Force a specific encoder, otherwise Sunshine will use the first encoder that is available
+            </div>
         </div>
-      </div>
-      <!--Credentials File-->
-      <div class="mb-3">
-        <label for="credentials_file" class="form-label"
-          >Web Manager Credentials File</label
-        >
-        <input
-          type="text"
-          class="form-control"
-          id="credentials_file"
-          placeholder="sunshine_state.json"
-          v-model="config.credentials_file"
-        />
-        <div class="form-text">
-          Store Username/Password separately from Sunshine's state file.
+        <!--FEC Percentage-->
+        <div class="mb-3">
+            <label for="fec_percentage" class="form-label">FEC Percentage</label>
+            <input type="text"
+                   class="form-control"
+                   id="fec_percentage"
+                   placeholder="20"
+                   v-model="config.fec_percentage" />
+            <div class="form-text">
+                Percentage of error correcting packets per data packet in each video frame.<br />
+                Higher values can correct for more network packet loss, but at the cost of increasing bandwidth usage.<br />
+                The default value of 20 is what GeForce Experience uses.
+            </div>
         </div>
-      </div>
-      <!--Origin PIN Allowed-->
-      <div class="mb-3">
-        <label for="origin_pin_allowed" class="form-label"
-          >Origin PIN Allowed</label
-        >
-        <select
-          id="origin_pin_allowed"
-          class="form-select"
-          v-model="config.origin_pin_allowed"
-        >
-          <option value="pc">Only localhost may access /pin</option>
-          <option value="lan">Only those in LAN may access /pin</option>
-          <option value="wan">Anyone may access /pin</option>
-        </select>
-        <div class="form-text">
-          The origin of the remote endpoint address that is not denied for HTTP method /pin
+        <!--Channels-->
+        <div class="mb-3">
+            <label for="channels" class="form-label">Channels</label>
+            <input type="text"
+                   class="form-control"
+                   id="channels"
+                   placeholder="1"
+                   v-model="config.channels" />
+            <div class="form-text">
+                When multicasting, it could be useful to have different configurations for each connected Client. For example:
+                <ul>
+                    <li>
+                        Clients connected through WAN and LAN have different bitrate constraints.
+                    </li>
+                    <li>
+                        Decoders may require different settings for color
+                    </li>
+                </ul>
+                Unlike simply broadcasting to multiple Client, this will generate distinct video streams.<br />
+                Note, CPU usage increases for each distinct video stream generated
+            </div>
         </div>
-      </div>
-      <!--External IP-->
-      <div class="mb-3">
-        <label for="external_ip" class="form-label">External IP</label>
-        <input
-          type="text"
-          class="form-control"
-          id="external_ip"
-          placeholder="123.456.789.12"
-          v-model="config.external_ip"
-        />
-        <div class="form-text">
-          If no external IP address is given, Sunshine will automatically detect external IP
+        <!--Credentials File-->
+        <div class="mb-3">
+            <label for="credentials_file" class="form-label">Web Manager Credentials File</label>
+            <input type="text"
+                   class="form-control"
+                   id="credentials_file"
+                   placeholder="sunshine_state.json"
+                   v-model="config.credentials_file" />
+            <div class="form-text">
+                Store Username/Password separately from Sunshine's state file.
+            </div>
         </div>
-      </div>
+        <!--Origin PIN Allowed-->
+        <div class="mb-3">
+            <label for="origin_pin_allowed" class="form-label">Origin PIN Allowed</label>
+            <select id="origin_pin_allowed"
+                    class="form-select"
+                    v-model="config.origin_pin_allowed">
+                <option value="pc">Only localhost may access /pin</option>
+                <option value="lan">Only those in LAN may access /pin</option>
+                <option value="wan">Anyone may access /pin</option>
+            </select>
+            <div class="form-text">
+                The origin of the remote endpoint address that is not denied for HTTP method /pin
+            </div>
+        </div>
+        <!--External IP-->
+        <div class="mb-3">
+            <label for="external_ip" class="form-label">External IP</label>
+            <input type="text"
+                   class="form-control"
+                   id="external_ip"
+                   placeholder="123.456.789.12"
+                   v-model="config.external_ip" />
+            <div class="form-text">
+                If no external IP address is given, Sunshine will automatically detect external IP
+            </div>
+        </div>
     </div>
     <!--Software Settings-->
     <div v-if="currentTab === 'sw'" class="config-page">
@@ -905,7 +894,9 @@
           this.config.origin_pin_allowed =
             this.config.origin_pin_allowed || "pc";
           this.config.origin_web_ui_allowed =
-            this.config.origin_web_ui_allowed || "lan";
+                this.config.origin_web_ui_allowed || "lan";
+            this.config.address_family =
+                this.config.address_family || "ipv4";
           this.config.hevc_mode = this.config.hevc_mode || 0;
           this.config.encoder = this.config.encoder || "";
           this.config.nv_preset = this.config.nv_preset || "p4";

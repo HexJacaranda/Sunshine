@@ -596,9 +596,9 @@ void serverinfo(std::shared_ptr<typename SimpleWeb::ServerBase<T>::Response> res
   tree.put("root.uniqueid", http::unique_id);
   tree.put("root.HttpsPort", map_port(PORT_HTTPS));
   tree.put("root.ExternalPort", map_port(PORT_HTTP));
-  tree.put("root.mac", platf::get_mac_address(local_endpoint.address().to_string()));
+  tree.put("root.mac", platf::get_mac_address(net::addr_to_normalized_string(local_endpoint.address())));
   tree.put("root.MaxLumaPixelsHEVC", config::video.hevc_mode > 1 ? "1869449984" : "0");
-  tree.put("root.LocalIP", local_endpoint.address().to_string());
+  tree.put("root.LocalIP", net::addr_to_normalized_string(local_endpoint.address()));
 
   if(config::video.hevc_mode == 3) {
     tree.put("root.ServerCodecModeSupport", "3843");
@@ -751,7 +751,7 @@ void launch(bool &host_audio, resp_https_t response, req_https_t request) {
   stream::launch_session_raise(make_launch_session(host_audio, args));
 
   tree.put("root.<xmlattr>.status_code", 200);
-  tree.put("root.sessionUrl0", "rtsp://"s + request->local_endpoint().address().to_string() + ':' + std::to_string(map_port(stream::RTSP_SETUP_PORT)));
+  tree.put("root.sessionUrl0", "rtsp://"s + net::addr_to_url_escaped_string(request->local_endpoint().address()) + ':' + std::to_string(map_port(stream::RTSP_SETUP_PORT)));
   tree.put("root.gamesession", 1);
 }
 
@@ -798,7 +798,7 @@ void resume(bool &host_audio, resp_https_t response, req_https_t request) {
   stream::launch_session_raise(make_launch_session(host_audio, args));
 
   tree.put("root.<xmlattr>.status_code", 200);
-  tree.put("root.sessionUrl0", "rtsp://"s + request->local_endpoint().address().to_string() + ':' + std::to_string(map_port(stream::RTSP_SETUP_PORT)));
+  tree.put("root.sessionUrl0", "rtsp://"s + net::addr_to_url_escaped_string(request->local_endpoint().address()) + ':' + std::to_string(map_port(stream::RTSP_SETUP_PORT)));
   tree.put("root.resume", 1);
 }
 
@@ -933,6 +933,8 @@ void start() {
     tree.put("root.<xmlattr>.status_message"s, "The client is not authorized. Certificate verification failed."s);
   };
 
+  auto address_family = net::af_from_enum_string(config::sunshine.address_family);
+
   https_server.default_resource["GET"]            = not_found<SimpleWeb::HTTPS>;
   https_server.resource["^/serverinfo$"]["GET"]   = serverinfo<SimpleWeb::HTTPS>;
   https_server.resource["^/pair$"]["GET"]         = [&add_cert](auto resp, auto req) { pair<SimpleWeb::HTTPS>(add_cert, resp, req); };
@@ -944,7 +946,7 @@ void start() {
   https_server.resource["^/cancel$"]["GET"]       = cancel;
 
   https_server.config.reuse_address = true;
-  https_server.config.address       = "0.0.0.0"s;
+  https_server.config.address       = net::af_to_any_address_string(address_family);
   https_server.config.port          = port_https;
 
   http_server.default_resource["GET"]            = not_found<SimpleWeb::HTTP>;
@@ -953,7 +955,7 @@ void start() {
   http_server.resource["^/pin/([0-9]+)$"]["GET"] = pin<SimpleWeb::HTTP>;
 
   http_server.config.reuse_address = true;
-  http_server.config.address       = "0.0.0.0"s;
+  http_server.config.address       = net::af_to_any_address_string(address_family);
   http_server.config.port          = port_http;
 
   auto accept_and_run = [&](auto *http_server) {
